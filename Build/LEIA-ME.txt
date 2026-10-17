@@ -1,0 +1,31 @@
+NOCLIP - build de teste (Fuly Games)
+====================================
+
+ANTES DE ABRIR
+  1. Tenha a Steam instalada, aberta e logada.
+  2. Extraia o .zip inteiro numa pasta (nao rode de dentro do .zip).
+  3. Abra NOCLIP.exe. Na primeira vez o Windows pode instalar o Visual C++ e
+     perguntar sobre o Firewall: permita (rede privada e publica).
+
+  A Steam vai mostrar voce "jogando Spacewar". E normal: o jogo usa o AppID de
+  teste da Valve enquanto nao tem pagina propria na Steam.
+
+JOGAR JUNTO
+  - Uma pessoa clica em "Hospedar expediente". As outras entram de tres jeitos:
+      * pelo convite da Steam (Shift+Tab > amigos > Convidar);
+      * pelo "Codigo de convite" que aparece na sala de espera do host
+        ("Entrar em expediente" > digitar o codigo);
+      * pela lista de salas publicas em "Entrar em expediente".
+  - Todo mundo precisa estar com a MESMA versao do build.
+  - Ate 6 estagiarios por sala.
+
+VOZ
+  - Chat de voz. Em Opcoes > Audio escolha o microfone, o fone e o modo
+    (deteccao de voz ou apertar para falar).
+
+SE DER PROBLEMA
+  - "Nao acha a sala": confira se os dois estao com a Steam aberta e na mesma
+    versao do jogo; tente pelo convite da Steam.
+  - Tela preta ou fecha ao abrir: atualize o driver de video.
+  - Mande para o Ricardo o arquivo de log NOCLIP.log. Ele fica dentro da pasta
+    do jogo, em NOCLIP\Saved\Logs (no launcher: botao LOGS).

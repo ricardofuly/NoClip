@@ -1,0 +1,30 @@
+# ===== Unreal (gerado na maquina, nao vai para o repositorio) =====
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+Build/Windows/
+Platforms/*/Binaries/
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# IDEs
+.vs/
+.idea/
+.vscode/
+*.sln
+*.slnx
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+.vsconfig
+
+# Launcher (o build vai para Build/Tools)
+Launcher/dist/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

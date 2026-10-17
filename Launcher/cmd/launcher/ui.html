@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>NOCLIP</title>
+<style>
+  :root {
+    --wall: #c9b86a;      /* papel de parede do Level 0 */
+    --wall-dark: #8f7f3e;
+    --carpet: #6f6233;
+    --ink: #1c1a12;
+    --paper: #efe7c4;
+    --paper-2: #e2d7aa;
+    --stamp: #9e2f2a;
+    --ok: #3f6b3a;
+    --line: rgba(28, 26, 18, .25);
+    --mono: "Consolas", "Lucida Console", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--ink);
+    color: var(--ink);
+    font: 14px/1.45 var(--mono);
+    user-select: none;
+    overflow: hidden;
+  }
+  /* Corredor: listras do papel de parede, luz fluorescente e chuvisco de VHS. */
+  .room {
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 46px),
+      radial-gradient(120% 70% at 50% -10%, #f3e7a6 0%, var(--wall) 45%, var(--wall-dark) 100%);
+    filter: saturate(.9);
+  }
+  .room::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+    animation: hum 4s steps(2) infinite;
+  }
+  @keyframes hum { 50% { opacity: .85; } }
+  .lamp { position: absolute; top: 0; height: 6px; width: 180px; background: #fffbe0; box-shadow: 0 0 40px 14px rgba(255,250,210,.55); }
+  .lamp.a { left: 120px; } .lamp.b { right: 160px; animation: flicker 7s infinite; }
+  @keyframes flicker { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .2; } 95% { opacity: .9; } 96% { opacity: .3; } }
+
+  .wrap { position: relative; height: 100%; display: grid; grid-template-columns: 1fr 380px; grid-template-rows: 1fr auto; gap: 18px; padding: 26px 28px 22px; }
+
+  .brand { align-self: center; padding-left: 6px; }
+  .brand h1 {
+    margin: 0; font-size: 92px; line-height: .9; letter-spacing: 6px; color: var(--ink);
+    text-shadow: 3px 0 rgba(158,47,42,.35), -2px 0 rgba(40,70,120,.25);
+  }
+  .brand .sub { margin-top: 10px; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; opacity: .8; }
+  .brand .tag { display: inline-block; margin-top: 18px; padding: 4px 10px; border: 2px solid var(--stamp); color: var(--stamp); font-weight: bold; letter-spacing: 2px; transform: rotate(-3deg); }
+  .steam { margin-top: 22px; display: none; max-width: 440px; padding: 10px 12px; background: rgba(28,26,18,.85); color: var(--paper); border-left: 4px solid var(--stamp); }
+  .steam.show { display: block; }
+
+  /* Memorando com as notas da versao. */
+  .memo {
+    background: var(--paper); border: 1px solid var(--line); box-shadow: 6px 6px 0 rgba(0,0,0,.25);
+    padding: 16px 18px; display: flex; flex-direction: column; min-height: 0;
+  }
+  .memo .head { display: flex; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
+  .memo .head span:last-child { color: var(--stamp); }
+  .notes { flex: 1; overflow: auto; font-size: 13px; padding-right: 6px; user-select: text; }
+  .notes p { margin: 0 0 8px; } .notes ul { margin: 0 0 8px; padding-left: 18px; } .notes hr { border: 0; border-top: 1px dashed var(--line); }
+  .notes::-webkit-scrollbar { width: 8px; } .notes::-webkit-scrollbar-thumb { background: var(--wall-dark); }
+  .memo .link { margin-top: 8px; font-size: 12px; text-decoration: underline; cursor: pointer; opacity: .75; }
+
+  /* Barra de baixo: status, progresso e o botao. */
+  .bar { grid-column: 1 / -1; background: rgba(28,26,18,.92); color: var(--paper); padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; gap: 8px 18px; align-items: center; }
+  .status { font-size: 14px; min-height: 20px; }
+  .detail { font-size: 12px; opacity: .65; min-height: 16px; word-break: break-all; }
+  .meter { height: 10px; background: #3a3420; position: relative; overflow: hidden; }
+  .meter i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(90deg, var(--wall) 0 10px, #e9d98a 10px 20px); transition: width .2s; }
+  .meter.idle { opacity: 0; }
+  .meter.busy i { width: 30% !important; animation: slide 1.2s linear infinite; }
+  @keyframes slide { from { left: -30%; } to { left: 100%; } }
+  .left { display: grid; gap: 6px; }
+  .actions { display: flex; gap: 10px; align-items: center; grid-row: span 3; }
+  button {
+    font: bold 15px var(--mono); letter-spacing: 2px; cursor: pointer; border: 0; color: var(--ink);
+    background: var(--wall); padding: 14px 34px; box-shadow: inset 0 -4px 0 var(--wall-dark);
+  }
+  button:hover { filter: brightness(1.08); } button:active { transform: translateY(1px); }
+  button:disabled { opacity: .45; cursor: default; filter: none; }
+  button.ghost { background: transparent; color: var(--paper); box-shadow: inset 0 0 0 1px rgba(239,231,196,.35); padding: 8px 12px; font-size: 12px; letter-spacing: 1px; }
+  .foot { grid-column: 1 / -1; display: flex; gap: 14px; justify-content: space-between; font-size: 12px; opacity: .7; color: var(--ink); margin-top: -8px; }
+  .foot b { font-weight: bold; }
+  .tools { display: flex; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="room"><div class="lamp a"></div><div class="lamp b"></div></div>
+<div class="wrap">
+  <div class="brand">
+    <h1>NOCLIP</h1>
+    <div class="sub">Baseline Recuperações · Programa de Estágio</div>
+    <div class="tag" id="tag">Level 0</div>
+    <div class="steam" id="steam">A Steam não está aberta. Abra e entre na sua conta antes de jogar: as salas e o chat de voz passam por ela.</div>
+  </div>
+
+  <div class="memo">
+    <div class="head"><span>MEMORANDO</span><span id="memover">—</span></div>
+    <div class="notes" id="notes"><p>Procurando o último memorando da Baseline...</p></div>
+    <div class="link" id="relink" style="display:none">ver no GitHub</div>
+  </div>
+
+  <div class="bar">
+    <div class="left">
+      <div class="status" id="status">Procurando atualizações...</div>
+      <div class="meter busy" id="meter"><i id="fill"></i></div>
+      <div class="detail" id="detail"></div>
+    </div>
+    <div class="actions">
+      <button class="ghost" id="cancel" style="display:none">PAUSAR</button>
+      <button id="primary" disabled>AGUARDE</button>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Instalado: <b id="inst">—</b> · Disponível: <b id="latest">—</b> · Launcher <span id="lver">—</span></span>
+    <span class="tools">
+      <button class="ghost" style="color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)" id="verify">VERIFICAR ARQUIVOS</button>
+      <button class="ghost" style="color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)" id="folder">PASTA DO JOGO</button>
+      <button class="ghost" style="color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)" id="logs">LOGS</button>
+    </span>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const act = (name) => window.noclipAction && window.noclipAction(name);
+  $('primary').onclick = () => act('primary');
+  $('cancel').onclick = () => act('cancel');
+  $('verify').onclick = () => act('verify');
+  $('folder').onclick = () => act('folder');
+  $('logs').onclick = () => act('logs');
+  $('relink').onclick = () => act('release');
+
+  function human(n) {
+    if (!n) return '0 B';
+    if (n >= 1 << 30) return (n / (1 << 30)).toFixed(2) + ' GB';
+    if (n >= 1 << 20) return (n / (1 << 20)).toFixed(0) + ' MB';
+    if (n >= 1 << 10) return (n / (1 << 10)).toFixed(0) + ' KB';
+    return n + ' B';
+  }
+  function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  // Markdown basico das notas (titulos, listas, negrito, linhas).
+  function md(src) {
+    const lines = esc(src || '').split(/\r?\n/);
+    let html = '', list = false;
+    for (let raw of lines) {
+      let l = raw.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<b>$1</b>');
+      if (/^\s*[-*] /.test(l)) { if (!list) { html += '<ul>'; list = true; } html += '<li>' + l.replace(/^\s*[-*] /, '') + '</li>'; continue; }
+      if (list) { html += '</ul>'; list = false; }
+      if (/^---+$/.test(l.trim())) { html += '<hr>'; continue; }
+      if (/^#{1,6} /.test(l)) { html += '<p><b>' + l.replace(/^#+ /, '') + '</b></p>'; continue; }
+      if (l.trim()) html += '<p>' + l + '</p>';
+    }
+    if (list) html += '</ul>';
+    return html || '<p>Sem notas para esta versão.</p>';
+  }
+
+  const labels = {
+    checking: 'AGUARDE', install: 'INSTALAR', update: 'ATUALIZAR', downloading: 'BAIXANDO',
+    verifying: 'CONFERINDO', ready: 'JOGAR', running: 'EM JOGO', offline: 'JOGAR', error: 'TENTAR DE NOVO', selfupdate: 'AGUARDE'
+  };
+  let lastNotes = null;
+  window.onState = (s) => {
+    $('primary').textContent = labels[s.phase] || 'AGUARDE';
+    $('primary').disabled = !['install', 'update', 'ready', 'offline', 'error'].includes(s.phase);
+    $('cancel').style.display = s.phase === 'downloading' ? '' : 'none';
+    $('verify').disabled = !['ready', 'update', 'offline', 'error'].includes(s.phase) || !s.latest;
+    $('status').textContent = s.message || '';
+    $('inst').textContent = s.installed || 'nada';
+    $('latest').textContent = s.latest || '—';
+    $('lver').textContent = s.launcherVersion || '—';
+    $('memover').textContent = s.latest ? 'v' + s.latest : '—';
+    $('tag').textContent = s.installed ? 'Estágio v' + s.installed : 'Vaga aberta';
+    $('steam').classList.toggle('show', !s.steamRunning);
+    $('relink').style.display = s.releaseUrl ? '' : 'none';
+    if (s.notes !== lastNotes && s.latest) { lastNotes = s.notes; $('notes').innerHTML = md(s.notes); }
+
+    const meter = $('meter');
+    let detail = s.detail || '';
+    if (s.phase === 'downloading' && s.progress) {
+      const p = s.progress, pct = p.total > 0 ? Math.min(100, p.done / p.total * 100) : 0;
+      meter.className = 'meter';
+      $('fill').style.width = pct.toFixed(1) + '%';
+      const eta = p.speed > 0 ? Math.max(0, (p.total - p.done) / p.speed) : 0;
+      detail = `${human(p.done)} de ${human(p.total)} · ${pct.toFixed(0)}% · ${p.files}/${p.fileCount} arquivos` +
+        (p.speed > 0 ? ` · ${human(p.speed)}/s · ${eta > 90 ? Math.round(eta / 60) + ' min' : Math.round(eta) + ' s'}` : '') +
+        (p.current ? ` · ${p.current.split('/').pop()}` : '');
+    } else if (s.phase === 'verifying' && s.hash && s.hash[1] > 0) {
+      meter.className = 'meter';
+      $('fill').style.width = (s.hash[0] / s.hash[1] * 100).toFixed(1) + '%';
+      detail = `${s.hash[0]}/${s.hash[1]} arquivos`;
+    } else if (s.phase === 'checking' || s.phase === 'selfupdate') {
+      meter.className = 'meter busy';
+    } else {
+      meter.className = 'meter idle';
+    }
+    $('detail').textContent = detail;
+  };
+  window.addEventListener('load', async () => {
+    if (window.noclipState) { try { window.onState(JSON.parse(await window.noclipState())); } catch (e) {} }
+  });
+</script>
+</body>
+</html>
